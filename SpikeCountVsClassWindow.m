@@ -1,0 +1,50 @@
+function SpkCount = SpikeCountVsClassWindow(filename, edge1, edge2, varargin)
+
+load(filename)
+switch numel(varargin)
+    case 0
+        trials = 'all';
+    case 1
+        trials = varargin{1};
+    otherwise
+        error('Too many arguments.')
+end
+if ~isempty(MatData)
+    % calculate best class
+    if length(MatData.class) == 8
+        for c = 1:length(MatData.class)
+            if ~isempty(MatData.class(c).ntr)
+                ntr = 0;
+                for tr = 1:length(MatData.class(c).ntr)
+                    if ismember(MatData.class(c).ntr(tr).trialnum, trials) || strcmpi(trials, 'all')
+
+                        ntr = ntr + 1;
+                        TS       = MatData.class(c).ntr(tr).TS-MatData.class(c).ntr(tr).Cue_onT;
+                        for step=1:length(edge1)
+                            counts(ntr, step) = length(find((TS>edge1(step))  & (TS<edge2(step))));
+                        end
+    
+                        clear TS 
+                    end
+                end
+                SpkCount(c, :) = mean(counts, 'omitnan');
+
+                clear rates counts
+            
+            else
+                SpkCount(c, :) = 0;
+            end
+        end
+    else
+        disp('All classes unavailble')
+    end
+
+    
+else
+
+    SpkCount = [];
+end
+
+
+
+
